@@ -6,14 +6,13 @@ export default async function handler(req: any, res: any) {
   const session = await unstable_getServerSession(req, res, authOptions)
   if (!session) {
     res.status(401).json({"error": "unauthenticated"})
-  }
-  if (req.method === 'GET') {
-    const user = await prisma.brotherPoints.findMany({
+  } else if (req.method === 'GET') {
+    const points = await prisma.brotherPoints.findMany({
       where: {
         userId: session?.user?.id
       },
     })
-    res.status(200).json(user)
+    res.status(200).json(points)
   } else if (req.method === 'POST') {
     const {id, semester} = JSON.parse(req.body)
     const user = await prisma.brotherPoints.findFirst({

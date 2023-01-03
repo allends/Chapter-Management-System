@@ -48,7 +48,6 @@ const HomePage = () => {
     getCurrentUserPoints().then((response) => setPoints(response))
 
     getCurrentUser().then((user) => {
-      console.log(user)
       setUser(user)
       setEditingFields(user)
     })
@@ -58,7 +57,7 @@ const HomePage = () => {
     return <div className='text-center'>Please sign in</div>
   }
 
-  const editable = ['name', 'email', 'number', 'venmo']
+  const editable = ['nickname', 'number', 'venmo']
   const hiddenFields = ['id', 'userId']
 
 

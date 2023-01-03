@@ -6,8 +6,7 @@ export default async function handler(req: any, res: any) {
   const session = await unstable_getServerSession(req, res, authOptions)
   if (!session) {
     res.status(401).json({"error": "unauthenticated"})
-  }
-  if (req.method === 'GET') {
+  } else if (req.method === 'GET') {
     const user = await prisma.user.findFirst({
       where: {
         email: session?.user?.email

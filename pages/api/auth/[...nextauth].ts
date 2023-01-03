@@ -1,8 +1,9 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { User } from "@prisma/client"
 import NextAuth from "next-auth"
 import GoogleProvider from 'next-auth/providers/google'
-import { signIn } from "next-auth/react"
 import prisma from "../../../lib/prisma"
+
 export const authOptions = {
   // Configure one or more authentication providers
   providers: [
@@ -16,11 +17,20 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET ?? "",
   callbacks: {
     async session({ session, token, user }: any) {
-      // Send properties to the client, like an access_token and user id from a provider.
       session.id = user.id
       
       return session
-    }
+    },
+    async signIn({ user, account, profile, email, credentials }: any) {
+      // sign in logic
+      return true
+    },
+
+  },
+  events: {
+    async createUser({ user }: any ) {
+      // TODO: make the first and last name fields populated
+    },
   }
 }
 

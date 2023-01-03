@@ -18,6 +18,7 @@ export default function RootLayout({
             <div className="navbar-center">
               <Link className="btn btn-ghost" href='/'>Home</Link>
               <Link className="btn btn-ghost" href='/brothers'>Brothers</Link>
+              <Link className="btn btn-ghost" href='/events'>Events</Link>
               <Link className="btn btn-ghost" href='/message'>Message</Link>
             </div>
             <div className="navbar-end">

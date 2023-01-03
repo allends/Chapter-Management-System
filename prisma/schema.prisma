@@ -42,6 +42,8 @@ model Session {
 model User {
   id            String    @id @default(cuid())
   name          String?
+  nickname      String?
+  venmo         String?
   email         String?   @unique
   number        String?
   emailVerified DateTime?
@@ -72,6 +74,15 @@ model SemesterPoints {
   professionalDevelopment   Int
   fundraising               Int
   pledge                    Int
+}
+
+model Event {
+  id                        String @id @default(cuid())
+  title                     String
+  semester                  Semester
+  category                  Category
+  value                     Int
+  userIds                   String[]
 }
 
 
