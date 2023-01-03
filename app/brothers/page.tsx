@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import prisma from '../../lib/prisma'
 
-export const getUsers = async () => {
+const getUsers = async () => {
   const response = await fetch('/api/users', {
     method: 'GET'
   })

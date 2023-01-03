@@ -2,9 +2,16 @@
 import { Semester, User } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import React, { SetStateAction, useEffect, useState } from 'react'
-import { getUsers } from '../brothers/page'
 
-export const getUserPoints = async (user : any, semester: string) => {
+const getUsers = async () => {
+  const response = await fetch('/api/users', {
+    method: 'GET'
+  })
+  const users = await response.json()
+  return users
+}
+
+const getUserPoints = async (user : any, semester: string) => {
   const resp = await fetch('/api/points', {
     method: 'POST',
     cache: 'no-cache',
