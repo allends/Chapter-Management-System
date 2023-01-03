@@ -1,4 +1,5 @@
 'use client'
+import { User } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import prisma from '../../lib/prisma'
@@ -14,7 +15,7 @@ export const getUsers = async () => {
 const BrothersPage = () => {
 
   const session = useSession()
-  const [users, setUsers] = useState<any>([])
+  const [users, setUsers] = useState<User[]>([])
   useEffect(() => {
     if (session.status === 'unauthenticated') {
       return

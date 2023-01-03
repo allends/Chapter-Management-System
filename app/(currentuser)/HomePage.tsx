@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import _, { startCase } from 'lodash'
 import { useSession } from 'next-auth/react'
+import { BrotherPoints, User } from '@prisma/client'
 
 const getCurrentUser = async () => {
   const resp = await fetch('/api/user', {
@@ -12,10 +13,10 @@ const getCurrentUser = async () => {
   return json
 }
 
-const getCurrentUserPoints = async () => {
+export const getCurrentUserPoints = async () => {
   const resp = await fetch('/api/points', {
     method: 'GET',
-    cache: 'no-cache'
+    cache: 'no-cache',
   })
   const json = resp.json()
   return json
@@ -35,11 +36,10 @@ const HomePage = () => {
 
   const session = useSession()
 
-
-  const [user, setUser] = useState<any>(null)
-  const [points, setPoints] = useState<any>([])
-  const [editingFields, setEditingFields] = useState<any>(null)
-  const [isEditing, setIsEditing] = useState(false)
+  const [user, setUser] = useState<User>()
+  const [points, setPoints] = useState<BrotherPoints[]>([])
+  const [editingFields, setEditingFields] = useState<User>()
+  const [isEditing, setIsEditing] = useState<boolean>(false)
 
   useEffect(() => {
     if (session.status === 'unauthenticated') {
@@ -62,9 +62,10 @@ const HomePage = () => {
   const hiddenFields = ['id', 'userId']
 
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, key: keyof User) => {
+    if (!editingFields) {return}
     const newUser = _.clone(editingFields)
-    newUser[key] = e.target.value
+    newUser[key] = e.target.value as any
     setEditingFields(newUser)
   }
 
@@ -82,7 +83,7 @@ const HomePage = () => {
 
   }
 
-  if (!user) {
+  if (!user || !editingFields) {
     return <div className='text-center'>Please sign in</div>
   }
 
@@ -91,7 +92,7 @@ const HomePage = () => {
       <div className='flex flex-row justify-center items-center gap-3 p-5'>
         <div className='avatar'>
           <div className='w-10 rounded-full'>
-            <img src={user?.image} />
+            <img src={user?.image ?? ""} />
           </div>
         </div>
         <div className="text-3xl font-semibold">
@@ -134,7 +135,7 @@ const HomePage = () => {
                 return (
                   <tr key={key}>
                     <td>{key}</td>
-                    <td><input disabled={fieldDisabled} value={editingFields[key] ?? ""} onChange={(e) => handleChange(e, key)} /></td>
+                    <td><input disabled={fieldDisabled} value={editingFields[key as keyof User] as any ?? ""} onChange={(e) => handleChange(e, key as keyof User)} /></td>
                   </tr>)
               })}
             </tbody>

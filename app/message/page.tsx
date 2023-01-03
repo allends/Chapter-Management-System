@@ -1,13 +1,28 @@
 'use client'
+import { Semester, User } from '@prisma/client'
 import { useSession } from 'next-auth/react'
-import React, { useEffect, useState } from 'react'
+import React, { SetStateAction, useEffect, useState } from 'react'
 import { getUsers } from '../brothers/page'
+
+export const getUserPoints = async (user : any, semester: string) => {
+  const resp = await fetch('/api/points', {
+    method: 'POST',
+    cache: 'no-cache',
+    body: JSON.stringify({
+      id: user.id,
+      semester: semester
+    })
+  })
+  const json = resp.json()
+  return json
+}
 
 const Message = () => {
 
   const session = useSession()
-  const [users, setUsers] = useState<any>([])
-  const [message, setMessage] = useState("")
+  const [users, setUsers] = useState<User[]>([])
+  const [message, setMessage] = useState<string>("")
+  const [semester, setSemester] = useState<Semester>(Semester.S23)
   const [selectedUsers, setSelectedUsers] = useState<any>([])
   useEffect(() => {
     if (session.status === 'unauthenticated') {
@@ -24,7 +39,6 @@ const Message = () => {
   }
 
   const handleClick = (user: any) => {
-    console.log(selectedUsers)
     if (!selectedUsers.includes(user)) {
       setSelectedUsers([
         user,
@@ -35,13 +49,21 @@ const Message = () => {
     }
   }
 
-  const handleSend = () => {
+  const handleSend = async () => {
 
-    selectedUsers.forEach((user: any) => {
+    selectedUsers.forEach( async (user: any) => {
       // mappings for current semesters points
+      const points = await getUserPoints(user, semester)
+      console.log(points)
 
       const mapObj: any = {
         '{name}': user.name,
+        '{fund}': points?.fundraising ?? 0,
+        '{cs}': points?.communityService ?? 0,
+        '{bh}': points?.brotherhood ?? 0,
+        '{pl}': points?.pledge ?? 0,
+        '{pd}': points?.professionalDevelopment ?? 0,
+        '{sem}': semester,
       };
 
       let re = new RegExp(Object.keys(mapObj).join("|"), "gi");
@@ -54,12 +76,17 @@ const Message = () => {
     })
   }
 
-  const isUserSelected = (user: any) => {
-    console.log(selectedUsers.find((selectedUser: any) => user.id === selectedUser.id) !== undefined)
-    return selectedUsers.find((selectedUser: any) => user.id === selectedUser.id) !== undefined
+  const isUserSelected = (user: User) => {
+    return selectedUsers.find((selectedUser: User) => user.id === selectedUser.id) !== undefined
   }
 
   return (
+    <div className='flex flex-col'>
+    <div className='flex flex-row items-center justify-center gap-5 m-3'>
+      {Object.keys(Semester).map((key) => (
+        <button className={`btn ${semester !== key && 'btn-outline'} btn-sm`} onClick={() => setSemester(key as Semester)}>{key}</button>
+      ))}
+    </div>
     <div className='flex flex-row h-full'>
       <div className='bg-base-100 h-full'>
         <table className='table'>
@@ -68,13 +95,13 @@ const Message = () => {
               <th>Name</th>
               <th>Status</th>
             </tr>
-            {users.map((user: any) => (
+            {users.map((user: User) => (
               <tr onClick={() => handleClick(user)} 
                   className={`hover:cursor-pointer hover:bg-base-300 ${isUserSelected(user) ? "bg-base-200": ""}`} key={user.id}>
                 <td>
                   <div className='avatar'>
                     <div className='w-10 rounded-full'>
-                      <img src={user.image} />
+                      <img src={user.image ?? ""} />
                     </div>
                   </div>
                 </td>
@@ -90,7 +117,7 @@ const Message = () => {
         <button className='btn' onClick={handleSend}>Send!</button>
       </div>
     </div>
-
+    </div>
   )
 }
 
