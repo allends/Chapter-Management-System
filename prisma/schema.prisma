@@ -58,7 +58,7 @@ model User {
 
 model BrotherPoints {
   id                        String @id @default(cuid())
-  userId                    String @unique
+  userId                    String
   brother                   User @relation(references: [id], fields: [userId])
   semester                  Semester
   brotherhood               Int
