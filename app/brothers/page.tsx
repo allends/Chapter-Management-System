@@ -16,6 +16,8 @@ const BrothersPage = () => {
 
   const session = useSession()
   const [users, setUsers] = useState<User[]>([])
+  const [filter, setFilter] = useState<string>("")
+
   useEffect(() => {
     if (session.status === 'unauthenticated') {
       return
@@ -30,11 +32,16 @@ const BrothersPage = () => {
     return <div className='text-center'>Loading...</div>
   }
 
+  const filterUser = (user: User) => {
+    return user.name?.toLowerCase().includes(filter.toLowerCase())
+  }
+
   return (
-    <div>
+    <div className='flex flex-col items-center gap-10'>
       <div className='text-3xl text-center p-5'>
         Brother Contact
       </div>
+      <input className="input w-full max-w-xs input-bordered" type="text" value={filter} onChange={ e => setFilter(e.target.value)} placeholder="Search..." />
       <table className='table mx-auto'>
         <tbody>
         <tr>
@@ -43,7 +50,7 @@ const BrothersPage = () => {
           <th>Email</th>
           <th>Status</th>
         </tr>
-        {users.map((user: any) => (
+        {users.filter(filterUser).map((user: any) => (
           <tr key={user.id}>
             <td>
               <div className='avatar'>

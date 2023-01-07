@@ -43,11 +43,13 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   nickname      String?
+  class         Class @default(None)
   venmo         String?
   email         String?   @unique
   number        String?
   emailVerified DateTime?
   image         String?
+  role          Role    @default(BROTHER)
   status        Status @default(ACTIVE)
   accounts      Account[]
   sessions      Session[]
@@ -56,7 +58,7 @@ model User {
 
 model BrotherPoints {
   id                        String @id @default(cuid())
-  userId                    String
+  userId                    String @unique
   brother                   User @relation(references: [id], fields: [userId])
   semester                  Semester
   brotherhood               Int
@@ -104,6 +106,16 @@ enum Category {
   PLEDGE
 }
 
+enum Class {
+  DeltaBeta
+  GammaBeta
+  Omega
+  Psi
+  Chi
+  Phi
+  None
+}
+
 enum Status {
   ACTIVE
   INACTIVE
@@ -114,4 +126,10 @@ enum Semester {
   S23
   F23
   S24
+}
+
+enum Role {
+  EBOARD
+  CHAIR
+  BROTHER
 }

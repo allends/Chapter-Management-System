@@ -1,6 +1,8 @@
 'use client'
-import { Semester, User } from '@prisma/client'
+import { Class, Semester, Status, User } from '@prisma/client'
+import { startCase } from 'lodash'
 import { useSession } from 'next-auth/react'
+import Select from 'react-select'
 import React, { SetStateAction, useEffect, useState } from 'react'
 
 const getUsers = async () => {
@@ -31,6 +33,31 @@ const Message = () => {
   const [message, setMessage] = useState<string>("")
   const [semester, setSemester] = useState<Semester>(Semester.S23)
   const [selectedUsers, setSelectedUsers] = useState<any>([])
+
+  const [selectedStatuses, setSelectedStatuses] = useState<Status[]>([])
+  const [selectedClasses, setSelectedClasses] = useState<Class[]>([])
+
+  const genOptionsObj = (option: any) => {
+    const obj = {
+      'value': option,
+      'label': startCase(option)
+    }
+    return obj
+  }
+
+  const handleClassesChange = (e: any) => {
+    const classesSelected = e.map((value: any) => value.value)
+    setSelectedClasses(classesSelected)
+  }
+
+  const handleStatusChange = (e: any) => {
+    const statusSelected = e.map((value: any) => value.value)
+    setSelectedStatuses(statusSelected)
+  }
+
+  const statusOptions = Object.keys(Status).map(genOptionsObj)
+  const classOptions = Object.keys(Class).map(genOptionsObj)
+
   useEffect(() => {
     if (session.status === 'unauthenticated') {
       return
@@ -87,8 +114,30 @@ const Message = () => {
     return selectedUsers.find((selectedUser: User) => user.id === selectedUser.id) !== undefined
   }
 
+  const userFilter = (user: User) => {
+    const classesHit = selectedClasses.length === 0 || selectedClasses.includes(user.class) 
+    const statusHit = selectedStatuses.length === 0 || selectedStatuses.includes(user.status)
+    return classesHit && statusHit
+  }
+
   return (
     <div className='flex flex-col'>
+      <Select 
+        isMulti 
+        isSearchable 
+        placeholder="Filter by Class"
+        options={classOptions}
+        onChange={handleClassesChange}
+        className="w-1/2 mx-auto my-3"
+        />
+      <Select 
+        isMulti 
+        isSearchable 
+        placeholder="Filter by Status"
+        options={statusOptions}
+        onChange={handleStatusChange}
+        className="w-1/2 mx-auto my-3"
+      />
     <div className='flex flex-row items-center justify-center gap-5 m-3'>
       {Object.keys(Semester).map((key) => (
         <button className={`btn ${semester !== key && 'btn-outline'} btn-sm`} onClick={() => setSemester(key as Semester)}>{key}</button>
@@ -102,7 +151,7 @@ const Message = () => {
               <th>Name</th>
               <th>Status</th>
             </tr>
-            {users.map((user: User) => (
+            {users.filter(userFilter).map((user: User) => (
               <tr onClick={() => handleClick(user)} 
                   className={`hover:cursor-pointer hover:bg-base-300 ${isUserSelected(user) ? "bg-base-200": ""}`} key={user.id}>
                 <td>

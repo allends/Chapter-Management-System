@@ -2,6 +2,7 @@ import Link from "next/link"
 import Providers from "./providers"
 import "../styles/globals.css"
 import Login from "./Login"
+import { NavBar } from "../components/NavBar"
 
 export default function RootLayout({
   children,
@@ -15,12 +16,7 @@ export default function RootLayout({
         <Providers>
           <nav className="navbar bg-primary">
             <div className="navbar-start"></div>
-            <div className="navbar-center">
-              <Link className="btn btn-ghost" href='/'>Home</Link>
-              <Link className="btn btn-ghost" href='/brothers'>Brothers</Link>
-              <Link className="btn btn-ghost" href='/events'>Events</Link>
-              <Link className="btn btn-ghost" href='/message'>Message</Link>
-            </div>
+            <NavBar />
             <div className="navbar-end">
               <Login />
             </div>
