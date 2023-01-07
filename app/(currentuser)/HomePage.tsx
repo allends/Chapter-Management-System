@@ -63,7 +63,7 @@ const HomePage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, key: keyof User) => {
     if (!editingFields) {return}
-    const newUser = _.clone(editingFields)
+    let newUser: any = _.clone(editingFields)
     newUser[key] = e.target.value as any
     setEditingFields(newUser)
   }
