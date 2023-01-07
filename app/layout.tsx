@@ -1,8 +1,7 @@
-import Link from "next/link"
 import Providers from "./providers"
 import "../styles/globals.css"
 import Login from "./Login"
-import { NavBar } from "../components/NavBar"
+import { NavBar } from "./components/NavBar"
 
 export default function RootLayout({
   children,
