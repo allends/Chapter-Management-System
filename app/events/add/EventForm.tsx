@@ -6,13 +6,20 @@ import {FieldValues, useForm, UseFormRegister, UseFormSetValue} from 'react-hook
 import { genOptionsObj } from '../../../utils/objects'
 
 
-export const SelectOptions = ({ options, name, register }: { options: any[], name: string, register: UseFormRegister<FieldValues>}) => {
-  return <select {...register(name)} className="select select-bordered w-full max-w-xs">
+export const SelectOptions = ({ options, name, register, label }: { options: any[], name: string, register: UseFormRegister<any>, label?: string }) => {
+  return (
+    <div className="form-control">
+      <label className="label">
+        <span className='label-text'>{label}</span>
+      </label>
+      <select {...register(name)} className="select select-bordered w-full max-w-xs">
         <option disabled>{name}</option>
         {options.map(opt => (
           <option value={opt.value}>{opt.label}</option>
         ))}
       </select>
+    </div>
+  )
 }
 
 const UserPicker = ({ users, setValue }: {users: User[], setValue: UseFormSetValue<FieldValues>}) => {

@@ -3,7 +3,9 @@ import { Class, Semester, Status, User } from '@prisma/client'
 import { startCase } from 'lodash'
 import { useSession } from 'next-auth/react'
 import Select from 'react-select'
-import React, { SetStateAction, useEffect, useState } from 'react'
+import React, { SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { SelectOptions } from '../events/add/EventForm'
 
 const getUsers = async () => {
   const response = await fetch('/api/users', {
@@ -29,13 +31,19 @@ const getUserPoints = async (user : any, semester: string) => {
 const Message = () => {
 
   const session = useSession()
+  const { register, watch } = useForm()
   const [users, setUsers] = useState<User[]>([])
   const [message, setMessage] = useState<string>("")
-  const [semester, setSemester] = useState<Semester>(Semester.S23)
   const [selectedUsers, setSelectedUsers] = useState<any>([])
 
-  const [selectedStatuses, setSelectedStatuses] = useState<Status[]>([])
-  const [selectedClasses, setSelectedClasses] = useState<Class[]>([])
+  const values = watch(['class', 'status'])
+  const semester = watch('semester')
+
+  const userFilter =  useCallback((user: User) => {
+    const classesHit = values[0] === (user.class) 
+    const statusHit = values[1] === (user.status)
+    return classesHit && statusHit
+  }, [values])
 
   const genOptionsObj = (option: any) => {
     const obj = {
@@ -45,18 +53,9 @@ const Message = () => {
     return obj
   }
 
-  const handleClassesChange = (e: any) => {
-    const classesSelected = e.map((value: any) => value.value)
-    setSelectedClasses(classesSelected)
-  }
-
-  const handleStatusChange = (e: any) => {
-    const statusSelected = e.map((value: any) => value.value)
-    setSelectedStatuses(statusSelected)
-  }
-
   const statusOptions = Object.keys(Status).map(genOptionsObj)
   const classOptions = Object.keys(Class).map(genOptionsObj)
+  const semesterOptions = Object.keys(Semester).map(genOptionsObj)
 
   useEffect(() => {
     if (session.status === 'unauthenticated') {
@@ -114,59 +113,38 @@ const Message = () => {
     return selectedUsers.find((selectedUser: User) => user.id === selectedUser.id) !== undefined
   }
 
-  const userFilter = (user: User) => {
-    const classesHit = selectedClasses.length === 0 || selectedClasses.includes(user.class) 
-    const statusHit = selectedStatuses.length === 0 || selectedStatuses.includes(user.status)
-    return classesHit && statusHit
-  }
 
   return (
     <div className='flex flex-col'>
-      <Select 
-        isMulti 
-        isSearchable 
-        placeholder="Filter by Class"
-        options={classOptions}
-        onChange={handleClassesChange}
-        className="w-1/2 mx-auto my-3"
-        />
-      <Select 
-        isMulti 
-        isSearchable 
-        placeholder="Filter by Status"
-        options={statusOptions}
-        onChange={handleStatusChange}
-        className="w-1/2 mx-auto my-3"
-      />
-    <div className='flex flex-row items-center justify-center gap-5 m-3'>
-      {Object.keys(Semester).map((key) => (
-        <button className={`btn ${semester !== key && 'btn-outline'} btn-sm`} onClick={() => setSemester(key as Semester)}>{key}</button>
-      ))}
-    </div>
-    <div className='flex flex-row h-full'>
-      <div className='bg-base-100 h-full'>
-        <table className='table'>
-            <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Status</th>
-            </tr>
-            {users.filter(userFilter).map((user: User) => (
-              <tr onClick={() => handleClick(user)} 
-                  className={`hover:cursor-pointer hover:bg-base-300 ${isUserSelected(user) ? "bg-base-200": ""}`} key={user.id}>
-                <td>
-                  <div className='avatar'>
-                    <div className='w-10 rounded-full'>
-                      <img src={user.image ?? ""} />
-                    </div>
-                  </div>
-                </td>
-                <td className={``}>{user.name}</td>
-                <td>{user.status}</td>
-              </tr>
-            ))}
-        </table>
+      <div className="m-auto flex flex-row gap-1">
+        <SelectOptions options={classOptions} register={register} name="class" label="Filter by Class" />
+        <SelectOptions options={statusOptions} register={register} name="status" label="Filter by Status" />
+        <SelectOptions options={semesterOptions} register={register} name="semester" label="Choose Semester" />
       </div>
+      <div className='flex flex-row h-full'>
+        <div className='bg-base-100 h-full w-96'>
+          <table className='table'>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Status</th>
+              </tr>
+              {users.filter(userFilter).map((user: User) => (
+                <tr onClick={() => handleClick(user)} 
+                    className={`hover:cursor-pointer hover:bg-base-300 ${isUserSelected(user) ? "bg-base-200": ""}`} key={user.id}>
+                  <td>
+                    <div className='avatar'>
+                      <div className='w-10 rounded-full'>
+                        <img src={user.image ?? ""} />
+                      </div>
+                    </div>
+                  </td>
+                  <td className={``}>{user.name}</td>
+                  <td>{user.status}</td>
+                </tr>
+              ))}
+          </table>
+        </div>
 
       <div className='w-full p-5 flex flex-col gap-5'>
         <textarea className='textarea textarea-primary w-full' placeholder='Message...' value={message} onChange={(e) => setMessage(e.target.value)} />
