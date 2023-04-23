@@ -2,7 +2,8 @@
 import { User } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
-import prisma from '../../lib/prisma'
+import { prisma } from '../../lib/prisma'
+import { UserSession } from '../../lib/types'
 
 const getUsers = async () => {
   const response = await fetch('/api/users', {
@@ -14,17 +15,18 @@ const getUsers = async () => {
 
 const BrothersPage = () => {
 
-  const session = useSession()
+  const userSession  = useSession()
+  const session: UserSession = userSession.data as UserSession
   const [users, setUsers] = useState<User[]>([])
   const [filter, setFilter] = useState<string>("")
 
   useEffect(() => {
-    if (session.status === 'unauthenticated') {
+    if (userSession.status === 'unauthenticated') {
       return
     }
     getUsers().then((response) => setUsers(response))
   }, [])
-  if (session.status === 'unauthenticated') {
+  if (userSession.status === 'unauthenticated') {
     return <div className='text-center'>Please sign in</div>
   }
 

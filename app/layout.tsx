@@ -9,7 +9,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html data-theme="emerald">
+    <html data-theme="business">
       <head />
       <body>
         <Providers>

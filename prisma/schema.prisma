@@ -61,26 +61,29 @@ model BrotherPoints {
   userId                    String
   brother                   User @relation(references: [id], fields: [userId])
   semester                  Semester
-  brotherhood               Int
-  communityService          Int
-  professionalDevelopment   Int
-  fundraising               Int
-  pledge                    Int
+  brotherhood               Int @default(0)
+  communityService          Int @default(0)
+  professionalDevelopment   Int @default(0)
+  fundraising               Int @default(0)
+  pledge                    Int @default(0)
+  outreach                  Int @default(0)
 }
 
 model SemesterPoints {
   id                        String @id @default(cuid())
   semester                  Semester
-  brotherhood               Int
-  communityService          Int
-  professionalDevelopment   Int
-  fundraising               Int
-  pledge                    Int
+  brotherhood               Int @default(0)
+  communityService          Int @default(0)
+  professionalDevelopment   Int @default(0)
+  fundraising               Int @default(0)
+  pledge                    Int @default(0)
+  outreach                  Int @default(0)
 }
 
 model Event {
   id                        String @id @default(cuid())
   title                     String
+  date                      DateTime @default(now())
   semester                  Semester
   category                  Category
   value                     Int
